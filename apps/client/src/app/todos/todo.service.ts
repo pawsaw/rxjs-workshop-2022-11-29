@@ -1,12 +1,25 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { interval, Observable } from 'rxjs';
-import { exhaustMap, map, share, switchMap, tap } from 'rxjs/operators';
+import { interval, Observable, of } from 'rxjs';
+import {
+  exhaustMap,
+  map,
+  retry,
+  share,
+  switchMap,
+  take,
+  tap,
+  timeout
+} from 'rxjs/operators';
 import { Toolbelt } from './internals';
 import { Todo, TodoApi } from './models';
 import { TodoSettings } from './todo-settings.service';
 
 const todosUrl = 'http://localhost:3333/api';
+
+function fib(n: number): number {
+  return n < 3 ? 1 : fib(n - 1) + fib(n - 2);
+}
 
 @Injectable()
 export class TodoService {
@@ -22,7 +35,11 @@ export class TodoService {
     return interval(5000).pipe(
       exhaustMap(() => this.query()),
       tap({ error: () => this.toolbelt.offerHardReload() }),
-      share()
+      share(),
+      retry({
+        count: 5,
+        delay: (error, n) => of(null).pipe(timeout(fib(n) * 1000), take(1))
+      })
     );
   }
 
