@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { interval, Observable, of } from 'rxjs';
 import {
+  delay,
   exhaustMap,
   map,
   retry,
@@ -38,7 +39,7 @@ export class TodoService {
       share(),
       retry({
         count: 5,
-        delay: (error, n) => of(null).pipe(timeout(fib(n) * 1000), take(1))
+        delay: (error, n) => of(null).pipe(delay(fib(n) * 1000), take(1))
       })
     );
   }

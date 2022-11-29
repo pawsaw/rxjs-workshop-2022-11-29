@@ -1,5 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, of, Subject } from 'rxjs';
+import {
+  combineLatest,
+  combineLatestWith,
+  first,
+  map,
+  merge,
+  Observable,
+  of,
+  share,
+  Subject,
+  tap,
+  withLatestFrom
+} from 'rxjs';
 import { Todo } from './models';
 import { TodoService } from './todo.service';
 
@@ -21,10 +33,17 @@ export class TodosComponent implements OnInit {
   constructor(private todosService: TodoService) {}
 
   ngOnInit(): void {
-    // TODO: Control update of todos in App (back pressure)
-    this.todos$ = this.todosSource$;
+    this.todosInitial$ = this.todosSource$.pipe(first());
 
-    // TODO: Control display of refresh button
+    const latestTodos$ = this.update$$.pipe(
+      withLatestFrom(this.todosSource$),
+      map(([_, todos]: [unknown, Todo[]]) => todos)
+    );
+
+    this.todos$ = merge(this.todosInitial$, latestTodos$).pipe(
+      tap(console.log),
+      share()
+    );
   }
 
   completeOrIncompleteTodo(todoForUpdate: Todo) {
