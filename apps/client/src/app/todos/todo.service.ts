@@ -25,7 +25,9 @@ export class TodoService {
 
   // TODO: Fix the return type of this method
   private query(): Observable<Todo[]> {
-    return this.http.get<TodoApi[]>(`${todosUrl}`).pipe(map(todos => todos.map(todo => this.toolbelt.toTodo(todo)));
+    return this.http
+      .get<TodoApi[]>(`${todosUrl}`)
+      .pipe(map((todos) => todos.map((todo) => this.toolbelt.toTodo(todo))));
   }
 
   create(todo: Todo): Observable<TodoApi> {
