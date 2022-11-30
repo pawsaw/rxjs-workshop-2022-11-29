@@ -1,7 +1,7 @@
 <dos-todo-navigation></dos-todo-navigation>
 <dos-todo-updater
   [isShown]="showReload$ | async"
-  (reload)="update$$.next()"
+  (reload)="update$$.next(null)"
 ></dos-todo-updater>
 <main class="todo__app">
   <ng-container *ngIf="todos$ | async as todos; else loadingIndicator">

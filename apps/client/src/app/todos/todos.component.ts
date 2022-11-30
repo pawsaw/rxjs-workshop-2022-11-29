@@ -4,10 +4,12 @@ import {
   combineLatestWith,
   first,
   map,
+  mapTo,
   merge,
   Observable,
   of,
   share,
+  skip,
   Subject,
   tap,
   withLatestFrom
@@ -34,6 +36,11 @@ export class TodosComponent implements OnInit {
 
   ngOnInit(): void {
     this.todosInitial$ = this.todosSource$.pipe(first());
+
+    this.show$ = this.todosSource$.pipe(skip(1), mapTo(true));
+    this.hide$ = this.update$$.pipe(mapTo(false));
+
+    this.showReload$ = merge(this.show$, this.hide$);
 
     const latestTodos$ = this.update$$.pipe(
       withLatestFrom(this.todosSource$),
