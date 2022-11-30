@@ -33,15 +33,23 @@ export class TodoService {
   loadFrequently(): Observable<Todo[]> {
     // TODO: Introduce error handled, configured, recurring, all-mighty stream
 
-    return interval(5000).pipe(
-      exhaustMap(() => this.query()),
+    return this.settings.settings$.pipe(
+      switchMap((settings) => {
+        if (settings.isPollingEnabled) {
+          return interval(settings.pollingInterval ?? 5000).pipe(
+            exhaustMap(() => this.query())
+          );
+        } else {
+          return this.query();
+        }
+      }),
       tap({ error: () => this.toolbelt.offerHardReload() }),
       share(),
       retry({
         count: 5,
         delay: (error, n) => of(null).pipe(delay(fib(n) * 1000), take(1))
       })
-    );
+    ); // current value, and subsequent values
   }
 
   private query(): Observable<Todo[]> {
